@@ -198,3 +198,5 @@ python3 -m homework.train_planner --model cnn_planner --epochs 60 --lr 1e-3
 ## Grade
 python3 -m grader homework -v
 
+
+python3 bundle.py homework ch55526
