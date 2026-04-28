@@ -24,13 +24,15 @@ class MLPPlanner(nn.Module):
         self.n_track = n_track
         self.n_waypoints = n_waypoints
 
-        input_dim = n_track * 2 * 2
+        input_dim = n_track * 2 * 3
 
         self.network = nn.Sequential(
-            nn.Linear(input_dim, 128),
+            nn.Linear(input_dim, 256),
             nn.ReLU(),
-            nn.Linear(128, 256),
+            nn.BatchNorm1d(256),
+            nn.Linear(256, 256),
             nn.ReLU(),
+            nn.BatchNorm1d(256),
             nn.Linear(256, 128),
             nn.ReLU(),
             nn.Linear(128, n_waypoints * 2),
@@ -57,9 +59,11 @@ class MLPPlanner(nn.Module):
         """
 
         B = track_left.shape[0]
+        center = (track_left + track_right) / 2.0
         x = torch.cat([
             track_left.view(B, -1),
             track_right.view(B, -1),
+            center.view(B, -1),
         ], dim=1)
         return self.network(x).view(B, self.n_waypoints, 2)
 
