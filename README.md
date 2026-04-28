@@ -192,7 +192,7 @@ After verifying that the zip file grades successfully, you can submit it on Canv
 python3 -m homework.train_planner --model mlp_planner --epochs 50
 
 python3 -m homework.train_planner --model mlp_planner --epochs 50 --lr 1e-3
-python3 -m homework.train_planner --model transformer_planner --epochs 120 --lr 3e-4 --batch_size 128
+python3 -m homework.train_planner --model transformer_planner --epochs 120 --lr 2e-4 --batch_size 64
 python3 -m homework.train_planner --model cnn_planner --epochs 60 --lr 1e-3
 
 ## Grade
