@@ -14,57 +14,26 @@ class MLPPlanner(nn.Module):
         n_track: int = 10,
         n_waypoints: int = 3,
     ):
-        """
-        Args:
-            n_track (int): number of points in each side of the track
-            n_waypoints (int): number of waypoints to predict
-        """
         super().__init__()
 
         self.n_track = n_track
         self.n_waypoints = n_waypoints
 
-        input_dim = n_track * 2 * 3
+        input_dim = n_track * 2 * 2  # just left + right, no center
 
         self.network = nn.Sequential(
-            nn.Linear(input_dim, 256),
+            nn.Linear(input_dim, 512),
             nn.ReLU(),
-            nn.BatchNorm1d(256),
-            nn.Linear(256, 256),
+            nn.Linear(512, 512),
             nn.ReLU(),
-            nn.BatchNorm1d(256),
-            nn.Linear(256, 128),
+            nn.Linear(512, 256),
             nn.ReLU(),
-            nn.Linear(128, n_waypoints * 2),
+            nn.Linear(256, n_waypoints * 2),
         )
 
-    def forward(
-        self,
-        track_left: torch.Tensor,
-        track_right: torch.Tensor,
-        **kwargs,
-    ) -> torch.Tensor:
-        """
-        Predicts waypoints from the left and right boundaries of the track.
-
-        During test time, your model will be called with
-        model(track_left=..., track_right=...), so keep the function signature as is.
-
-        Args:
-            track_left (torch.Tensor): shape (b, n_track, 2)
-            track_right (torch.Tensor): shape (b, n_track, 2)
-
-        Returns:
-            torch.Tensor: future waypoints with shape (b, n_waypoints, 2)
-        """
-
+    def forward(self, track_left, track_right, **kwargs):
         B = track_left.shape[0]
-        center = (track_left + track_right) / 2.0
-        x = torch.cat([
-            track_left.view(B, -1),
-            track_right.view(B, -1),
-            center.view(B, -1),
-        ], dim=1)
+        x = torch.cat([track_left.view(B, -1), track_right.view(B, -1)], dim=1)
         return self.network(x).view(B, self.n_waypoints, 2)
 
 
